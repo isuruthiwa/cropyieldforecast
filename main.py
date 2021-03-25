@@ -7,6 +7,8 @@ import time
 import tensorflow as tf
 
 # IDE show a runtime error, to ignore the error and run this line is used
+from linear_regression import LinearRegression, MuiltipleLinearRegression, PolynomialRegression
+
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -15,10 +17,18 @@ def import_dataset():
     return dataset['data']
 
 
-def clean_dataset(dataset):
-    cleaned_dataset = X[X[:, 1] <= 2017]
-    cleaned_dataset = cleaned_dataset[:, 3:]
-    return cleaned_dataset
+def get_training_data(dataset):
+    dataset = dataset[dataset[:, 1] <= 2017]
+    cleaned_dataset = dataset[:, 3:]
+    yield_set = dataset[:, 2]
+    return cleaned_dataset, yield_set
+
+
+def get_testing_data(dataset):
+    dataset = dataset[dataset[:, 1] == 2018]
+    cleaned_dataset = dataset[:, 3:]
+    yield_set = dataset[:, 2]
+    return cleaned_dataset, yield_set
 
 
 def calc_basic_stats(dataset):
@@ -30,7 +40,6 @@ def calc_basic_stats(dataset):
 def run_model(E_t1, E_t2, E_t3, E_t4, E_t5, E_t6, S_t1, S_t2, S_t3, S_t4, S_t5, S_t6, S_t7, S_t8, S_t9, S_t10, S_t11,
               P_t, Ybar, f, is_training, num_units, num_layers, dropout):
     return
-
 
 
 def process_data():
@@ -69,17 +78,15 @@ def process_data():
         f = 3
 
 
-
-
-
 X = import_dataset()
-X_tr = clean_dataset(X)
+X_tr, Y_tr = get_training_data(X)
+X_te, Y_te = get_testing_data(X)
 M, S = calc_basic_stats(X_tr)
 
 print(X.shape)
 print(X_tr.shape)
 
-X[:, 3:] = (X[:, 3:] - M) / S
+# X[:, 3:] = (X[:, 3:] - M) / S
 
 X = np.nan_to_num(X)
 
@@ -103,3 +110,10 @@ le = 0.0  # Weight of loss for prediction using times before final time steps
 l = 1.0  # Weight of loss for prediction using final time step
 num_units = 64  # Number of hidden units for LSTM cells
 num_layers = 1  # Number of layers of LSTM cell
+
+# r_sq = LinearRegression.fit_model(X_tr, Y_tr, X_te, Y_te)
+# LinearRegression.predict_model(X[X[:, 1] == 2018])
+
+# MuiltipleLinearRegression.fit_model(X_tr, Y_tr, X_te, Y_te)
+
+PolynomialRegression.fit_model(X_tr, Y_tr, X_te, Y_te)
